@@ -857,7 +857,7 @@ InlineListData InlineListDataFromMessage(not_null<Element*> view) {
 	auto result = InlineListData();
 	result.reactions = item->reactionsWithLocal();
 
-	const auto shouldAddEmptyPaidButton = [&] {
+	/*const auto shouldAddEmptyPaidButton = [&] {
 		if (view->context() == Context::ChatPreview) {
 			return false;
 		}
@@ -882,7 +882,7 @@ InlineListData InlineListDataFromMessage(not_null<Element*> view) {
 		result.reactions.insert(
 			result.reactions.begin(),
 			MessageReaction{ .id = ReactionId::Paid(), .count = 0 });
-	}
+	}*/
 	if (const auto user = item->history()->peer->asUser()) {
 		// Always show userpics, we have all information.
 		result.recent.reserve(result.reactions.size());
