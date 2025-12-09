@@ -25,9 +25,6 @@ public:
 		not_null<Main::Account*> account,
 		not_null<Data*> data);
 
-	QAccessible::Role accessibilityRole() override {
-		return QAccessible::Role::Dialog;
-	}
 	QString accessibilityName() override;
 	QString accessibilityDescription() override;
 
@@ -55,9 +52,11 @@ private:
 
 	rpl::event_stream<QByteArray> _qrCodes;
 	Ui::LinkButton *_skip = nullptr;
+	Ui::LinkButton *_passkey = nullptr;
 	base::Timer _refreshTimer;
 	mtpRequestId _requestId = 0;
 	bool _forceRefresh = false;
+	bool _passkeyPossible = false;
 
 };
 

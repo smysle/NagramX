@@ -127,6 +127,7 @@ VerticalButton::VerticalButton(
 
 void VerticalButton::dataUpdatedHook() {
 	_text.setMarkedText(_st.nameStyle, _data.text, kDefaultTextOptions);
+	_subscribed = false;
 	updateSize();
 }
 
@@ -477,7 +478,10 @@ SubsectionButton::SubsectionButton(
 SubsectionButton::~SubsectionButton() = default;
 
 void SubsectionButton::setData(SubsectionTab &&data) {
+	Expects(_data.userpic.get() == data.userpic.get());
+
 	_data = std::move(data);
+	RippleButton::finishAnimating();
 	dataUpdatedHook();
 	update();
 }

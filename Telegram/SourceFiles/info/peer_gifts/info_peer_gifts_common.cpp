@@ -11,7 +11,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "api/api_premium.h"
 #include "base/unixtime.h"
 #include "boxes/send_credits_box.h" // SetButtonMarkedLabel
-#include "boxes/star_gift_box.h"
 #include "boxes/sticker_set_box.h"
 #include "chat_helpers/stickers_gift_box_pack.h"
 #include "chat_helpers/stickers_lottie.h"
@@ -36,6 +35,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/dynamic_thumbnails.h"
 #include "ui/effects/premium_graphics.h"
 #include "ui/painter.h"
+#include "ui/top_background_gradient.h"
 #include "window/window_session_controller.h"
 #include "styles/style_chat.h"
 #include "styles/style_credits.h"
@@ -205,6 +205,11 @@ void GiftButton::setDescriptor(const GiftDescriptor &descriptor, Mode mode) {
 			: Lang::FormatCountDecimal(number);
 	};
 
+	const auto auctionStartDate = v::is<GiftTypeStars>(descriptor)
+		? v::get<GiftTypeStars>(descriptor).info.auctionStartDate
+		: TimeId();
+	const auto upcomingAuction = (auctionStartDate > base::unixtime::now());
+
 	_descriptor = descriptor;
 	_resalePrice = resalePrice;
 	const auto resale = (_resalePrice > 0);
@@ -232,7 +237,7 @@ void GiftButton::setDescriptor(const GiftDescriptor &descriptor, Mode mode) {
 					tr::now,
 					lt_amount,
 					_delegate->ministar().append(' ' + starsText),
-					Ui::Text::WithEntities),
+					tr::marked),
 				kMarkupTextOptions,
 				_delegate->textContext());
 		}
@@ -274,9 +279,11 @@ void GiftButton::setDescriptor(const GiftDescriptor &descriptor, Mode mode) {
 				: (small() && unique && unique->starsForResale)
 				? Data::FormatGiftResaleAsked(*unique)
 				: unique
-				? tr::lng_gift_transfer_button(
-					tr::now,
-					Ui::Text::WithEntities)
+				? tr::lng_gift_transfer_button(tr::now, tr::marked)
+				: data.info.auction()
+				? ((data.info.soldOut || upcomingAuction)
+					? tr::lng_gift_stars_auction_view
+					: tr::lng_gift_stars_auction_join)(tr::now, tr::marked)
 				: _delegate->star().append(' ' + format(data.info.stars))),
 			kMarkupTextOptions,
 			_delegate->textContext());
@@ -298,7 +305,7 @@ void GiftButton::setDescriptor(const GiftDescriptor &descriptor, Mode mode) {
 			_stars->setColorOverride(
 				Ui::Premium::CreditsIconGradientStops());
 		}
-		_lockedUntilDate = data.info.lockedUntilDate;
+		_lockedUntilDate = data.resale ? 0 : data.info.lockedUntilDate;
 	});
 
 	refreshLocked();
@@ -374,7 +381,7 @@ void GiftButton::setDocument(not_null<DocumentData*> document) {
 	const auto destroyed = base::take(_player);
 	_playerDocument = nullptr;
 	_mediaLifetime = rpl::single() | rpl::then(
-		document->owner().session().downloaderTaskFinished()
+		document->session().downloaderTaskFinished()
 	) | rpl::filter([=] {
 		return media->loaded();
 	}) | rpl::start_with_next([=] {
@@ -620,9 +627,9 @@ void GiftButton::cacheUniqueBackground(
 		auto p = QPainter(&_uniqueBackgroundCache);
 		p.setClipRect(inner);
 		const auto skip = inner.width() / 3;
-		Ui::PaintPoints(
+		Ui::PaintBgPoints(
 			p,
-			Ui::PatternPointsSmall(),
+			Ui::PatternBgPointsSmall(),
 			_uniquePatternCache,
 			_uniquePatternEmoji.get(),
 			*unique,
@@ -632,16 +639,24 @@ void GiftButton::cacheUniqueBackground(
 
 void GiftButton::paintEvent(QPaintEvent *e) {
 	auto p = QPainter(this);
-	const auto unique = v::is<GiftTypeStars>(_descriptor)
-		? v::get<GiftTypeStars>(_descriptor).info.unique.get()
-		: nullptr;
+	const auto stargift = std::get_if<GiftTypeStars>(&_descriptor);
+	const auto unique = stargift ? stargift->info.unique.get() : nullptr;
 	const auto onsale = unique && unique->starsForResale && small();
-	const auto requirePremium = v::is<GiftTypeStars>(_descriptor)
-		&& !v::get<GiftTypeStars>(_descriptor).userpic
-		&& !v::get<GiftTypeStars>(_descriptor).info.unique
-		&& v::get<GiftTypeStars>(_descriptor).info.requirePremium;
-	const auto hidden = v::is<GiftTypeStars>(_descriptor)
-		&& v::get<GiftTypeStars>(_descriptor).hidden;
+	const auto requirePremium = stargift
+		&& !stargift->userpic
+		&& !stargift->info.unique
+		&& stargift->info.requirePremium;
+	const auto auction = stargift
+		&& !stargift->userpic
+		&& !stargift->info.unique
+		&& stargift->info.auction();
+	const auto hidden = stargift && stargift->hidden;
+	const auto soldOut = stargift
+		&& !(stargift->pinned || stargift->pinnedSelection)
+		&& !unique
+		&& !stargift->userpic
+		&& stargift->info.limitedCount
+		&& !stargift->info.limitedLeft;
 	const auto extend = currentExtend();
 	const auto position = QPoint(extend.left(), extend.top());
 	const auto background = _delegate->background();
@@ -651,7 +666,7 @@ void GiftButton::paintEvent(QPaintEvent *e) {
 	if (unique) {
 		cacheUniqueBackground(unique, width, background.height() / dpr);
 		p.drawImage(extend.left(), extend.top(), _uniqueBackgroundCache);
-	} else if (requirePremium) {
+	} else if (requirePremium || auction) {
 		auto hq = PainterHighQualityEnabler(p);
 		auto pen = st::creditsFg->p;
 		pen.setWidth(style::ConvertScaleExact(2.));
@@ -683,7 +698,7 @@ void GiftButton::paintEvent(QPaintEvent *e) {
 				progress * (thickness * 2 + st::giftBoxUserpicSkip)));
 		}
 	}
-	if (_locked) {
+	if (_locked && !soldOut) {
 		st::giftBoxLockIcon.paint(
 			p,
 			position + st::giftBoxLockIconPosition,
@@ -779,11 +794,10 @@ void GiftButton::paintEvent(QPaintEvent *e) {
 	}, [&](const GiftTypeStars &data) {
 		const auto count = data.info.limitedCount;
 		const auto pinned = data.pinned || data.pinnedSelection;
+		const auto now = base::unixtime::now();
+		const auto upcomingAuction = (data.info.auctionStartDate > 0)
+			&& (data.info.auctionStartDate > now);
 		if (count || pinned) {
-			const auto soldOut = !pinned
-				&& !unique
-				&& !data.userpic
-				&& !data.info.limitedLeft;
 			const auto yourLeft = data.info.perUserTotal
 				? (data.info.perUserRemains
 					? tr::lng_gift_stars_your_left(
@@ -801,6 +815,10 @@ void GiftButton::paintEvent(QPaintEvent *e) {
 					? tr::lng_gift_stars_resale(tr::now)
 					: soldOut
 					? tr::lng_gift_stars_sold_out(tr::now)
+					: (!unique && data.info.auction())
+					? (upcomingAuction
+						? tr::lng_gift_stars_auction_soon
+						: tr::lng_gift_stars_auction)(tr::now)
 					: (!data.userpic
 						&& !data.info.unique
 						&& data.info.requirePremium)
@@ -827,7 +845,8 @@ void GiftButton::paintEvent(QPaintEvent *e) {
 					? st::boxTextFgGood->c
 					: soldOut
 					? st::attentionButtonFg->c
-					: (!data.userpic && data.info.requirePremium)
+					: (!data.userpic
+						&& (data.info.auction() || data.info.requirePremium))
 					? st::creditsFg->c
 					: st::windowActiveTextFg->c),
 				.bg2 = (onsale
@@ -1347,7 +1366,7 @@ void SelectGiftToUnpin(
 		});
 		const auto label = Ui::SetButtonMarkedLabel(
 			button,
-			tr::lng_context_unpin_from_top(Ui::Text::WithEntities),
+			tr::lng_context_unpin_from_top(tr::marked),
 			&show->session(),
 			st::creditsBoxButtonLabel,
 			&st::giftTooManyPinnedBox.button.textFg);

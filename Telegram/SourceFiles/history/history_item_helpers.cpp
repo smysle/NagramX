@@ -227,7 +227,7 @@ std::optional<SendPaymentDetails> ComputePaymentDetails(
 
 bool SuggestPaymentDataReady(
 		not_null<PeerData*> peer,
-		SuggestPostOptions suggest) {
+		SuggestOptions suggest) {
 	if (!suggest.exists || !suggest.price() || peer->amMonoforumAdmin()) {
 		return true;
 	} else if (suggest.ton && !peer->session().credits().tonLoaded()) {
@@ -1004,6 +1004,8 @@ MediaCheckResult CheckMessageMedia(const MTPMessageMedia &media) {
 	}, [](const MTPDmessageMediaGiveawayResults &) {
 		return Result::Good;
 	}, [](const MTPDmessageMediaPaidMedia &) {
+		return Result::Good;
+	}, [](const MTPDmessageMediaVideoStream &) {
 		return Result::Good;
 	}, [](const MTPDmessageMediaUnsupported &) {
 		return Result::Unsupported;

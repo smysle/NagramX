@@ -979,6 +979,7 @@ void Widget::chosenRow(const ChosenRow &row) {
 		params.highlight = Window::SearchHighlightId(_searchState.query);
 		if (row.newWindow) {
 			controller()->showInNewWindow(peer, showAtMsgId);
+			closeSuggestions();
 		} else {
 			controller()->showThread(history, showAtMsgId, params);
 			hideChildList();
@@ -1067,14 +1068,15 @@ void Widget::setupTopBarSuggestions(not_null<Ui::VerticalLayout*> dialogs) {
 		return;
 	}
 	using namespace rpl::mappers;
-	crl::on_main(&session(), [=, session = &session()] {
-		session->api().authorizations().unreviewedChanges(
+	crl::on_main(dialogs, [=] {
+		const auto owner = &session().data();
+		session().api().authorizations().unreviewedChanges(
 		) | rpl::start_with_next([=] {
 			updateForceDisplayWide();
 		}, lifetime());
-		(session->data().chatsListLoaded(nullptr)
+		(owner->chatsListLoaded(nullptr)
 			? rpl::single<Data::Folder*>(nullptr)
-			: session->data().chatsListLoadedEvents()
+			: owner->chatsListLoadedEvents()
 		) | rpl::filter(_1 == nullptr) | rpl::map([=] {
 			auto on = rpl::combine(
 				controller()->activeChatsFilter(),
@@ -1095,9 +1097,9 @@ void Widget::setupTopBarSuggestions(not_null<Ui::VerticalLayout*> dialogs) {
 					&& wide
 					&& !search
 					&& !searchInPeer
-					&& (id == session->data().chatsFilters().defaultId());
+					&& (id == owner->chatsFilters().defaultId());
 			});
-			return TopBarSuggestionValue(dialogs, session, std::move(on));
+			return TopBarSuggestionValue(dialogs, &session(), std::move(on));
 		}) | rpl::flatten_latest() | rpl::start_with_next([=](
 				Ui::SlideWrap<Ui::RpWidget> *raw) {
 			if (raw) {
@@ -1676,6 +1678,7 @@ void Widget::toggleFiltersMenu(bool enabled) {
 
 		_chatFilters = base::make_unique_q<NoScrollPropagationWidget>(this);
 		const auto raw = _chatFilters.get();
+		const auto idBeforeTabs = controller()->activeChatsFilterCurrent();
 		const auto inner = Ui::AddChatFiltersTabsStrip(
 			_chatFilters.get(),
 			&session(),
@@ -1688,6 +1691,9 @@ void Widget::toggleFiltersMenu(bool enabled) {
 			Window::GifPauseReason::Any,
 			controller(),
 			true);
+		if (controller()->activeChatsFilterCurrent() != idBeforeTabs) {
+			controller()->setActiveChatsFilter(idBeforeTabs);
+		}
 		raw->show();
 		raw->stackUnder(_scroll);
 		raw->resizeToWidth(width());
@@ -1816,6 +1822,10 @@ void Widget::updateSuggestions(anim::type animated) {
 			controller()->showPeerInfo(peer);
 		}, _suggestions->lifetime());
 
+		_suggestions->closeRequests() | rpl::start_with_next([=] {
+			closeSuggestions();
+		}, _suggestions->lifetime());
+
 		updateControlsGeometry();
 
 		_suggestions->show(animated, [=] {
@@ -1825,6 +1835,15 @@ void Widget::updateSuggestions(anim::type animated) {
 	} else {
 		updateStoriesVisibility();
 	}
+}
+
+void Widget::closeSuggestions() {
+	_searchSuggestionsLocked = false;
+	_searchHasFocus = false;
+	setFocus();
+	updateForceDisplayWide();
+	updateCancelSearch();
+	updateSuggestions(anim::type::normal);
 }
 
 void Widget::openBotMainApp(not_null<UserData*> bot) {

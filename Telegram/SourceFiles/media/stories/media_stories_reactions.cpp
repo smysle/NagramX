@@ -657,7 +657,7 @@ void WeatherView::setStickerFrom(not_null<DocumentData*> document) {
 	media->goodThumbnailWanted();
 
 	rpl::single() | rpl::then(
-		document->owner().session().downloaderTaskFinished()
+		document->session().downloaderTaskFinished()
 	) | rpl::filter([=] {
 		return media->loaded();
 	}) | rpl::take(1) | rpl::start_with_next([=] {
@@ -882,7 +882,9 @@ void Reactions::Panel::attachToReactionButton(
 void Reactions::Panel::create() {
 	auto reactions = Data::LookupPossibleReactions(
 		&_controller->uiShow()->session());
-	if (reactions.recent.empty()) {
+	if (reactions.recent.empty()
+		|| (_mode.current() == Mode::Message
+			&& _controller->videoStream())) {
 		return;
 	}
 	_parent = std::make_unique<Ui::RpWidget>(_controller->wrap().get());
@@ -1116,7 +1118,7 @@ auto Reactions::attachToMenu(
 	using namespace HistoryView::Reactions;
 
 	const auto story = _controller->story();
-	if (!story || story->peer()->isSelf()) {
+	if (!story || story->peer()->isSelf() || story->call()) {
 		return AttachStripResult::Skipped;
 	}
 
