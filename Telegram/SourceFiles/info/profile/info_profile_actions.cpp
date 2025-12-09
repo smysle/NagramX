@@ -635,6 +635,7 @@ base::options::toggle ShowChannelJoinedBelowAbout({
 		object_ptr<Ui::SlideWrap<Ui::VerticalLayout>>(
 			inner,
 			object_ptr<Ui::VerticalLayout>(inner)));
+	other->ease = anim::easeOutCubic;
 	other->toggleOn(state->expanded.value(), anim::type::normal);
 	constexpr auto kSlideDuration = float64(st::slideWrapDuration);
 	other->setDuration(kSlideDuration);
@@ -650,7 +651,7 @@ base::options::toggle ShowChannelJoinedBelowAbout({
 		timingArrow->paintRequest() | rpl::start_with_next([=] {
 			auto p = QPainter(timingArrow);
 			const auto progress = other->animating()
-				? (crl::now() - arrowAnimation->started()) / kSlideDuration
+				? anim::easeOutCubic(1., (crl::now() - arrowAnimation->started()) / kSlideDuration)
 				: 1.;
 
 			const auto path = Ui::ToggleUpDownArrowPath(
