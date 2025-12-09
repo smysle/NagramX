@@ -469,7 +469,7 @@ void BottomInfo::layoutDateText() {
 		const auto prefix = !author.isEmpty() ? u", "_q : QString();
 		const auto date = edited + ((_data.flags & Data::Flag::ForwardedDate)
 			? Ui::FormatDateTimeSavedFrom(_data.date, true)
-			: formatMessageTime(_data.date.time());
+			: formatMessageTime(_data.date.time()));
 		const auto afterAuthor = prefix + date;
 		const auto afterAuthorWidth = st::msgDateFont->width(afterAuthor);
 		const auto authorWidth = st::msgDateFont->width(author);

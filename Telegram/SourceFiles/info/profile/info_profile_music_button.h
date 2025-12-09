@@ -19,6 +19,8 @@ namespace Info::Profile {
 
 struct MusicButtonData {
 	Ui::Text::FormatSongName name;
+	QString title;
+	QString performer;
 	FullMsgId msgId;
 	std::shared_ptr<Data::DocumentMedia> mediaView;
 };
