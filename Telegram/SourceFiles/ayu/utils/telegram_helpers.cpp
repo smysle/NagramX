@@ -48,11 +48,14 @@
 #include "data/data_chat.h"
 #include "data/data_poll.h"
 #include "data/data_saved_sublist.h"
+#include "data/stickers/data_custom_emoji.h"
+#include "data/stickers/data_stickers.h"
 #include "lang/lang_keys.h"
 #include "lang/lang_text_entity.h"
 #include "main/main_domain.h"
 #include "styles/style_ayu_styles.h"
 #include "ui/text/text_utilities.h"
+#include "ui/text/text_entity.h"
 #include "ui/toast/toast.h"
 
 #include "unicode/regex.h"
@@ -919,6 +922,54 @@ bool mediaDownloadable(const Data::Media *media) {
 		return false;
 	}
 	return true;
+}
+
+TextWithEntities reverseLocalPremiumEmoji(const TextWithEntities &text, not_null<History *> history, bool isForQuote) {
+	if (text.empty()) {
+		return text;
+	}
+
+	const auto channel = history->peer->asChannel();
+	const auto hasCustomEmoji = channel && channel->mgInfo && channel->mgInfo->emojiSet.id;
+	const auto sets = hasCustomEmoji && channel
+		? &channel->owner().stickers().sets()
+		: nullptr;
+	const auto set = sets
+		? sets->find(channel->mgInfo->emojiSet.id)
+		: decltype(sets->cend()){};
+	const auto emojiAllowed = [=](const EntityInText& entity)
+	{
+		if (!sets || set == sets->cend()) {
+			return false;
+		}
+		const auto emojiId = Data::ParseCustomEmojiData(entity.data());
+		if (!emojiId) {
+			return false;
+		}
+		const auto &emojiMap = set->second->emoji;
+		for (const auto &[emoji, documents] : emojiMap) {
+			for (const auto &document : documents) {
+				if (document->id == emojiId) {
+					return true;
+				}
+			}
+		}
+		return false;
+	};
+
+	auto result = text;
+	for (auto &entity : result.entities) {
+		if (entity.type() == EntityType::CustomEmoji && entity.isLocal()) {
+			if (isForQuote || !history->peer->isSelf() && !(history->owner().session().user()->flags() & UserDataFlag::Premium) && !emojiAllowed(entity)) {
+				entity = EntityInText(
+					EntityType::CustomUrl,
+					entity.offset(),
+					entity.length(),
+					u"tg://emoji?id="_q + entity.data());
+			}
+		}
+	}
+	return result;
 }
 
 void resolveAllChats(const std::map<long long, QString> &peers) {

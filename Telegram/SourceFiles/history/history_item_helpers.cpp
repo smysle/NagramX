@@ -51,6 +51,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 // AyuGram includes
 #include "ayu/ayu_settings.h"
+#include "ayu/utils/telegram_helpers.h"
 
 
 namespace {
@@ -645,6 +646,10 @@ bool LookupReplyIsTopicPost(HistoryItem *replyTo) {
 TextWithEntities DropDisallowedCustomEmoji(
 		not_null<PeerData*> to,
 		TextWithEntities text) {
+	if (true) { // AyuGram: allow all premium emojis (via tg://emoji?id=...)
+		return text;
+	}
+
 	if (to->session().premium() || to->isSelf()) {
 		return text;
 	}
@@ -891,15 +896,16 @@ MTPMessageReplyHeader NewMessageReplyHeader(const Api::SendAction &action) {
 			? PeerId()
 			: replyTo.messageId.peer;
 		const auto replyToTop = LookupReplyToTop(action.history, replyTo);
+		const auto quoteNormalized = reverseLocalPremiumEmoji(replyTo.quote, action.history, true);
 		auto quoteEntities = Api::EntitiesToMTP(
 			&action.history->session(),
-			replyTo.quote.entities,
+			quoteNormalized.entities,
 			Api::ConvertOption::SkipLocal);
 		return MTP_messageReplyHeader(
 			MTP_flags(Flag::f_reply_to_msg_id
 				| (replyToTop ? Flag::f_reply_to_top_id : Flag())
 				| (externalPeerId ? Flag::f_reply_to_peer_id : Flag())
-				| (replyTo.quote.empty()
+				| (quoteNormalized.empty()
 					? Flag()
 					: (Flag::f_quote
 						| Flag::f_quote_text

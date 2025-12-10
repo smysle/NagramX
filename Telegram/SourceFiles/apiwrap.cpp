@@ -4126,9 +4126,10 @@ void ApiWrap::sendMessage(
 			sendFlags |= MTPmessages_SendMessage::Flag::f_silent;
 			mediaFlags |= MTPmessages_SendMedia::Flag::f_silent;
 		}
+		const auto sendingNormalized = reverseLocalPremiumEmoji(sending, history);
 		const auto sentEntities = Api::EntitiesToMTP(
 			_session,
-			sending.entities,
+			sendingNormalized.entities,
 			Api::ConvertOption::SkipLocal);
 		if (!sentEntities.v.isEmpty()) {
 			sendFlags |= MTPmessages_SendMessage::Flag::f_entities;
@@ -4199,8 +4200,6 @@ void ApiWrap::sendMessage(
 					draftMonoforumPeerId,
 					Api::UnixtimeFromMsgId(response.outerMsgId));
 			}
-
-			AyuWorker::markAsOnline(_session);
 		};
 		const auto fail = [=](
 				const MTP::Error &error,
@@ -4558,9 +4557,10 @@ void ApiWrap::sendMediaWithRandomId(
 
 	auto caption = item->originalText();
 	TextUtilities::Trim(caption);
+	const auto captionNormalized = reverseLocalPremiumEmoji(caption, history);
 	auto sentEntities = Api::EntitiesToMTP(
 		_session,
-		caption.entities,
+		captionNormalized.entities,
 		Api::ConvertOption::SkipLocal);
 
 	const auto updateRecentStickers = Api::HasAttachedStickers(media);
@@ -4622,8 +4622,6 @@ void ApiWrap::sendMediaWithRandomId(
 		if (updateRecentStickers) {
 			requestRecentStickers(std::nullopt, true);
 		}
-
-		AyuWorker::markAsOnline(_session);
 	}, [=](const MTP::Error &error, const MTP::Response &response) {
 		if (done) done(false);
 		sendMessageFail(error, peer, randomId, itemId);
@@ -4651,9 +4649,10 @@ void ApiWrap::sendMultiPaidMedia(
 
 	auto caption = item->originalText();
 	TextUtilities::Trim(caption);
+	const auto captionNormalized = reverseLocalPremiumEmoji(caption, history);
 	auto sentEntities = Api::EntitiesToMTP(
 		_session,
-		caption.entities,
+		captionNormalized.entities,
 		Api::ConvertOption::SkipLocal);
 	const auto starsPaid = std::min(
 		peer->starsPerMessageChecked(),
@@ -4845,8 +4844,6 @@ void ApiWrap::sendAlbumIfReady(not_null<SendingAlbum*> album) {
 			MTP_long(starsPaid)
 		), [=](const MTPUpdates &result, const MTP::Response &response) {
 		_sendingAlbums.remove(groupId);
-
-		AyuWorker::markAsOnline(_session);
 	}, [=](const MTP::Error &error, const MTP::Response &response) {
 		if (const auto album = _sendingAlbums.take(groupId)) {
 			for (const auto &item : (*album)->items) {

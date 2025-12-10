@@ -76,6 +76,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/ayu_state.h"
 #include "ayu/features/message_shot/message_shot.h"
 #include "ayu/utils/telegram_helpers.h"
+#include "ui/emoji_config.h"
 
 
 namespace {
@@ -3916,7 +3917,33 @@ FullReplyTo HistoryItem::replyTo() const {
 }
 
 void HistoryItem::setText(const TextWithEntities &textWithEntities) {
-	for (const auto &entity : textWithEntities.entities) {
+	auto text = textWithEntities;
+
+	static const auto kEmojiLinkRegex = QRegularExpression(
+		QStringLiteral("^tg://emoji\\?id=(\\d+)$"));
+	for (auto &entity : text.entities) {
+		if (entity.type() == EntityType::CustomUrl) {
+			const auto match = kEmojiLinkRegex.match(entity.data());
+			if (match.hasMatch()) {
+				const auto entityText = text.text.mid(
+					entity.offset(),
+					entity.length());
+				int emojiLength = 0;
+				const auto emoji = Ui::Emoji::Find(entityText, &emojiLength);
+				if (emoji && emojiLength == entityText.size()) {
+					const auto emojiId = match.captured(1);
+					entity = EntityInText(
+						EntityType::CustomEmoji,
+						entity.offset(),
+						entity.length(),
+						emojiId);
+					entity.setLocal();
+				}
+			}
+		}
+	}
+
+	for (const auto &entity : text.entities) {
 		auto type = entity.type();
 		if (type == EntityType::Url
 			|| type == EntityType::CustomUrl
@@ -3927,9 +3954,9 @@ void HistoryItem::setText(const TextWithEntities &textWithEntities) {
 			break;
 		}
 	}
-	setTextValue((_media && _media->consumeMessageText(textWithEntities))
+	setTextValue((_media && _media->consumeMessageText(text))
 		? TextWithEntities()
-		: std::move(textWithEntities));
+		: std::move(text));
 }
 
 void HistoryItem::setTextValue(TextWithEntities text, bool force) {

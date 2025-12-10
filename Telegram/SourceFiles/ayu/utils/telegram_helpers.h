@@ -98,6 +98,8 @@ ID getUserIdFromPackId(uint64 id);
 TextWithTags extractText(not_null<HistoryItem*> item);
 bool mediaDownloadable(const Data::Media* media);
 
+TextWithEntities reverseLocalPremiumEmoji(const TextWithEntities &text, not_null<History *> history, bool isForQuote = false);
+
 void resolveAllChats(const std::map<long long, QString> &peers);
 not_null<Main::Session *> currentSession();
 
