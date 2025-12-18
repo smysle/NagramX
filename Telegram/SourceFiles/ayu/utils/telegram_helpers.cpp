@@ -10,8 +10,6 @@
 #include <latch>
 #include <QTimer>
 
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 
@@ -51,14 +49,11 @@
 #include "data/stickers/data_custom_emoji.h"
 #include "data/stickers/data_stickers.h"
 #include "lang/lang_keys.h"
-#include "lang/lang_text_entity.h"
 #include "main/main_domain.h"
 #include "styles/style_ayu_styles.h"
 #include "ui/text/text_utilities.h"
 #include "ui/text/text_entity.h"
 #include "ui/toast/toast.h"
-
-#include "unicode/regex.h"
 
 namespace {
 
