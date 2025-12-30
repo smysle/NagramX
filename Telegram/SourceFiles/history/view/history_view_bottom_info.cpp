@@ -521,7 +521,7 @@ void BottomInfo::layoutDateText() {
 		const auto prefix = !author.isEmpty() ? (_data.flags & Data::Flag::Edited ? u" "_q : u", "_q) : QString();
 
 		const auto dateStr = (_data.flags & Data::Flag::ForwardedDate)
-			? Ui::FormatDateTimeSavedFrom(_data.date, true)
+			? Ui::FormatDateTimeSavedFrom(_data.date)
 			: formatMessageTime(_data.date.time());
 
 		const auto date = TextWithEntities{}

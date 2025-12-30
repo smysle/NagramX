@@ -197,7 +197,7 @@ AyuMusicButton::AyuMusicButton(
 	rpl::combine(
 		_title->naturalWidthValue(),
 		_performer->naturalWidthValue()
-	) | rpl::start_with_next([=]
+	) | rpl::on_next([=]
 							 {
 								 resizeToWidth(widthNoMargins());
 							 },

@@ -164,31 +164,31 @@ Fn<void()> badgeClickHandler(not_null<PeerData*> peer) {
 								  tr::now,
 								  lt_item,
 								  TextWithEntities{peer->name()},
-								  Ui::Text::RichLangValue)
+								  tr::rich)
 							  : tr::ayu_SupporterPopup(
 								  tr::now,
 								  lt_item,
 								  TextWithEntities{peer->name()},
-								  Ui::Text::RichLangValue))
-					   : Ui::Text::RichLangValue(custom.text);
+								  tr::rich))
+					   : tr::rich(custom.text);
 		} else if (isExtera) {
 			text = peer->isUser()
 					   ? tr::ayu_DeveloperPopup(
 						   tr::now,
 						   lt_item,
 						   TextWithEntities{peer->name()},
-						   Ui::Text::RichLangValue)
+						   tr::rich)
 					   : tr::ayu_OfficialResourcePopup(
 						   tr::now,
 						   lt_item,
 						   TextWithEntities{peer->name()},
-						   Ui::Text::RichLangValue);
+						   tr::rich);
 		} else if (isSupporter) {
 			text = tr::ayu_SupporterPopup(
 				tr::now,
 				lt_item,
 				TextWithEntities{peer->name()},
-				Ui::Text::RichLangValue);
+				tr::rich);
 		} else {
 			return;
 		}
@@ -231,7 +231,7 @@ void readMentions(base::weak_ptr<Data::Thread> weakThread) {
 	using Flag = MTPmessages_ReadMentions::Flag;
 	peer->session().api().request(MTPmessages_ReadMentions(
 		MTP_flags(rootId ? Flag::f_top_msg_id : Flag()),
-		peer->input,
+		peer->input(),
 		MTP_int(rootId)
 	)).done([=](const MTPmessages_AffectedHistory &result)
 	{
@@ -258,9 +258,9 @@ void readReactions(base::weak_ptr<Data::Thread> weakThread) {
 	using Flag = MTPmessages_ReadReactions::Flag;
 	peer->session().api().request(MTPmessages_ReadReactions(
 		MTP_flags(rootId ? Flag::f_top_msg_id : Flag(0)),
-		peer->input,
+		peer->input(),
 		MTP_int(rootId),
-		sublist ? sublist->sublistPeer()->input : MTPInputPeer()
+		sublist ? sublist->sublistPeer()->input() : MTPInputPeer()
 	)).done([=](const MTPmessages_AffectedHistory &result)
 	{
 		const auto offset = peer->session().api().applyAffectedHistory(
@@ -329,13 +329,13 @@ void readHistory(not_null<HistoryItem*> message) {
 					 {
 						 if (const auto channel = history->peer->asChannel()) {
 							 return history->session().api().request(MTPchannels_ReadHistory(
-								 channel->inputChannel,
+								 channel->inputChannel(),
 								 MTP_int(tillId)
 							 )).done([=] { AyuWorker::markAsOnline(&history->session()); }).send();
 						 }
 
 						 return history->session().api().request(MTPmessages_ReadHistory(
-							 history->peer->input,
+							 history->peer->input(),
 							 MTP_int(tillId)
 						 )).done([=](const MTPmessages_AffectedMessages &result)
 						 {
@@ -688,7 +688,7 @@ void searchPeerInner(const QString &peerId, Main::Session *session, const Userna
 
 	session->api().request(MTPmessages_GetInlineBotResults(
 		MTP_flags(0),
-		bot->inputUser,
+		bot->inputUser(),
 		MTP_inputPeerEmpty(),
 		MTPInputGeoPoint(),
 		MTP_string(peerId),
@@ -1060,7 +1060,7 @@ void getUserRegistrationDateInner(
 
 	session->api().request(MTPmessages_GetInlineBotResults(
 		MTP_flags(0),
-		bot->inputUser,
+		bot->inputUser(),
 		MTP_inputPeerEmpty(),
 		MTPInputGeoPoint(),
 		MTP_string(qsl("regdate ") + QString::number(userId)),
@@ -1144,14 +1144,14 @@ void getUserRegistrationDateInner(
 						TextWithEntities{userName},
 						lt_item2,
 						TextWithEntities{formattedDate},
-						Ui::Text::RichLangValue
+						tr::rich
 					);
 				} else {
 					resultText = tr::ayu_CreationDateSelfApproximately(
 						tr::now,
 						lt_item,
 						TextWithEntities{formattedDate},
-						Ui::Text::RichLangValue
+						tr::rich
 					);
 				}
 			} else if (flag == "LT") {
@@ -1162,14 +1162,14 @@ void getUserRegistrationDateInner(
 						TextWithEntities{userName},
 						lt_item2,
 						TextWithEntities{formattedDate},
-						Ui::Text::RichLangValue
+						tr::rich
 					);
 				} else {
 					resultText = tr::ayu_CreationDateSelfEarlier(
 						tr::now,
 						lt_item,
 						TextWithEntities{formattedDate},
-						Ui::Text::RichLangValue
+						tr::rich
 					);
 				}
 			} else if (flag == "ET") {
@@ -1180,14 +1180,14 @@ void getUserRegistrationDateInner(
 						TextWithEntities{userName},
 						lt_item2,
 						TextWithEntities{formattedDate},
-						Ui::Text::RichLangValue
+						tr::rich
 					);
 				} else {
 					resultText = tr::ayu_CreationDateSelfLater(
 						tr::now,
 						lt_item,
 						TextWithEntities{formattedDate},
-						Ui::Text::RichLangValue
+						tr::rich
 					);
 				}
 			}
@@ -1234,7 +1234,7 @@ void getChannelJoinOrCreateDate(not_null<ChannelData*> channel, Fn<void(TextWith
 			TextWithEntities{channel->name()},
 			lt_item2,
 			TextWithEntities{formattedDate},
-			Ui::Text::RichLangValue
+			tr::rich
 		);
 	} else if (channel->date) {
 		const auto formattedDate = langDayOfMonthFull(base::unixtime::parse(channel->date).date());
@@ -1244,7 +1244,7 @@ void getChannelJoinOrCreateDate(not_null<ChannelData*> channel, Fn<void(TextWith
 			TextWithEntities{channel->name()},
 			lt_item2,
 			TextWithEntities{formattedDate},
-			Ui::Text::RichLangValue
+			tr::rich
 		);
 	}
 
@@ -1264,7 +1264,7 @@ void getChatCreateDate(not_null<ChatData*> chat, Fn<void(TextWithEntities)> call
 			TextWithEntities{chat->name()},
 			lt_item2,
 			TextWithEntities{formattedDate},
-			Ui::Text::RichLangValue
+			tr::rich
 		);
 	}
 

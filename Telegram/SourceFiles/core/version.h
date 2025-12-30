@@ -24,5 +24,5 @@ constexpr auto AppName = "AyuGram Desktop"_cs;
 constexpr auto AppFile = "AyuGram"_cs;
 constexpr auto AppVersion = 6003010;
 constexpr auto AppVersionStr = "6.3.10";
-constexpr auto AppBetaVersion = true;
+constexpr auto AppBetaVersion = false;
 constexpr auto AppAlphaVersion = TDESKTOP_ALPHA_VERSION;

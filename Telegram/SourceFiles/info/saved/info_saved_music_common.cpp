@@ -100,7 +100,7 @@ void SetupSavedMusic(
 				musicButton->entity()->clicks() | rpl::filter([=](Qt::MouseButton mouseButton)
 				{
 					return mouseButton == Qt::RightButton;
-				}) | rpl::start_with_next([=]
+				}) | rpl::on_next([=]
 										  {
 											  const auto &settings = AyuSettings::getInstance();
 
@@ -136,7 +136,7 @@ void SetupSavedMusic(
 										  musicButton->lifetime());
 
 				const auto weak = base::make_weak(musicButton);
-				musicButton->entity()->onReady() | rpl::start_with_next(
+				musicButton->entity()->onReady() | rpl::on_next(
 					[=]
 					{
 						// fix animation glitch
