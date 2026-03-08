@@ -47,4 +47,6 @@ void AddCreateFilterAction(not_null<Ui::PopupMenu*> menu,
 						   HistoryItem *item,
 						   const QString &selectedText);
 
+void AddNagramxBookmarkAction(not_null<Ui::PopupMenu*> menu, HistoryItem *item);
+
 }

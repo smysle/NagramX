@@ -7825,3 +7825,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 "ayu_AboutText1" = "ToS breaking Telegram client based on {api_link}.";
 "ayu_UpdateAyuGram" = "Update AyuGram";
 "ayu_UtilityRestartRequired" = "The app will close in 5 seconds.";
+
+// NagramX keys
+"lng_nagramx_bookmarks_title" = "Bookmarks";
+"lng_nagramx_bookmarks_empty" = "No bookmarks yet.";
+"lng_nagramx_bookmark_add" = "Add to Bookmarks";
+"lng_nagramx_bookmark_remove" = "Remove Bookmark";
+"lng_nagramx_message_details" = "Message Details";

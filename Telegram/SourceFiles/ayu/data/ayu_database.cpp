@@ -144,6 +144,17 @@ auto storage = make_storage(
 		make_column("dialogId", &SpyMessageContentsRead::dialogId),
 		make_column("messageId", &SpyMessageContentsRead::messageId),
 		make_column("entityCreateDate", &SpyMessageContentsRead::entityCreateDate)
+	),
+	make_table<NagramxBookmark>(
+		"NagramxBookmark",
+		make_column("fakeId", &NagramxBookmark::fakeId, primary_key().autoincrement()),
+		make_column("peerId", &NagramxBookmark::peerId),
+		make_column("messageId", &NagramxBookmark::messageId),
+		make_column("peerName", &NagramxBookmark::peerName),
+		make_column("text", &NagramxBookmark::text),
+		make_column("mediaKind", &NagramxBookmark::mediaKind),
+		make_column("date", &NagramxBookmark::date),
+		make_column("bookmarkedAt", &NagramxBookmark::bookmarkedAt)
 	)
 );
 
@@ -515,6 +526,56 @@ bool hasPerDialogFilters() {
 	} catch (std::exception &ex) {
 		LOG(("Failed to check if there's any filters: %1").arg(ex.what()));
 		return false;
+	}
+}
+
+void addBookmark(const NagramxBookmark &bookmark) {
+	try {
+		storage.begin_transaction();
+		storage.insert(bookmark);
+		storage.commit();
+	} catch (std::exception &ex) {
+		LOG(("Failed to save bookmark: %1").arg(ex.what()));
+	}
+}
+
+void removeBookmark(ID peerId, int messageId) {
+	try {
+		storage.remove_all<NagramxBookmark>(
+			where(
+				column<NagramxBookmark>(&NagramxBookmark::peerId) == peerId and
+				column<NagramxBookmark>(&NagramxBookmark::messageId) == messageId
+			)
+		);
+	} catch (std::exception &ex) {
+		LOG(("Failed to remove bookmark: %1").arg(ex.what()));
+	}
+}
+
+bool isBookmarked(ID peerId, int messageId) {
+	try {
+		return !storage.select(
+			columns(column<NagramxBookmark>(&NagramxBookmark::fakeId)),
+			where(
+				column<NagramxBookmark>(&NagramxBookmark::peerId) == peerId and
+				column<NagramxBookmark>(&NagramxBookmark::messageId) == messageId
+			),
+			limit(1)
+		).empty();
+	} catch (std::exception &ex) {
+		LOG(("Failed to check bookmark: %1").arg(ex.what()));
+		return false;
+	}
+}
+
+std::vector<NagramxBookmark> getBookmarks() {
+	try {
+		return storage.get_all<NagramxBookmark>(
+			order_by(column<NagramxBookmark>(&NagramxBookmark::bookmarkedAt)).desc()
+		);
+	} catch (std::exception &ex) {
+		LOG(("Failed to get bookmarks: %1").arg(ex.what()));
+		return {};
 	}
 }
 

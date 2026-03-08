@@ -135,3 +135,16 @@ public:
 	int messageId;
 	int entityCreateDate;
 };
+
+class NagramxBookmark
+{
+public:
+	ID fakeId;
+	ID peerId;
+	int messageId;
+	std::string peerName;
+	std::string text;
+	std::string mediaKind;
+	int date;
+	int bookmarkedAt;
+};

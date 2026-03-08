@@ -1052,6 +1052,7 @@ void AddMessageActions(
 		AyuUi::AddUserMessagesAction(menu, request.item);
 		AyuUi::AddRepeatMessageAction(menu, request.item);
 		AyuUi::AddMessageDetailsAction(menu, request.item);
+		AyuUi::AddNagramxBookmarkAction(menu, request.item);
 	}
 
 	AddPostLinkAction(menu, request);

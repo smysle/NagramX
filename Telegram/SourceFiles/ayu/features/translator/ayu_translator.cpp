@@ -19,6 +19,11 @@
 #include "implementations/google.h"
 #include "implementations/telegram.h"
 #include "implementations/yandex.h"
+#include "nagramx/translate/nagramx_translate_deepl.h"
+#include "nagramx/translate/nagramx_translate_microsoft.h"
+#include "nagramx/translate/nagramx_translate_lingo.h"
+#include "nagramx/translate/nagramx_translate_transmart.h"
+#include "nagramx/translate/nagramx_translate_llm.h"
 #include "main/main_session.h"
 
 // todo: expose available languages from current translator and use in `ChooseTranslateToBox`
@@ -228,7 +233,20 @@ mtpRequestId TranslateManager::performTranslation(Builder &req) {
 
 	if (const auto it = _pending.find(id); it != _pending.end()) {
 		const auto &settings = AyuSettings::getInstance();
-		if (settings.translationProvider == "telegram") {
+
+		// NagramX translation providers (by numeric ID)
+		const auto nxProvider = settings.nagramxTranslationProvider;
+		if (nxProvider == 1) {
+			it->second.cancel = DeepLTranslator::instance().startTranslation(args);
+		} else if (nxProvider == 2) {
+			it->second.cancel = MicrosoftTranslator::instance().startTranslation(args);
+		} else if (nxProvider == 3) {
+			it->second.cancel = LingoTranslator::instance().startTranslation(args);
+		} else if (nxProvider == 4) {
+			it->second.cancel = TranSmartTranslator::instance().startTranslation(args);
+		} else if (nxProvider == 5 || settings.nagramxTranslateWithLlm) {
+			it->second.cancel = LlmTranslator::instance().startTranslation(args);
+		} else if (settings.translationProvider == "telegram") {
 			it->second.cancel = TelegramTranslator::instance().startTranslation(args);
 		} else if (settings.translationProvider == "yandex") {
 			it->second.cancel = YandexTranslator::instance().startTranslation(args);

@@ -30,6 +30,7 @@
 #include "ayu/ui/message_history/history_section.h"
 #include "ayu/ui/settings/filters/edit_filter.h"
 #include "ayu/utils/telegram_helpers.h"
+#include "nagramx/bookmarks/nagramx_bookmarks.h"
 #include "base/call_delayed.h"
 #include "base/random.h"
 #include "base/unixtime.h"
@@ -849,6 +850,33 @@ void AddCreateFilterAction(not_null<Ui::PopupMenu*> menu,
 			controller->show(Settings::RegexEditBox(&filter, {}, getDialogIdFromPeer(item->history()->peer), true));
 		},
 		&st::menuIconAddToFolder);
+}
+
+void AddNagramxBookmarkAction(not_null<Ui::PopupMenu*> menu, HistoryItem *item) {
+	const auto &settings = AyuSettings::getInstance();
+	if (!settings.nagramxShowBookmarkAction) {
+		return;
+	}
+
+	if (!item || item->isLocal() || item->isService()) {
+		return;
+	}
+
+	const auto peerId = static_cast<long long>(item->history()->peer->id.value);
+	const auto msgId = static_cast<int>(item->fullId().msg.bare);
+	const auto bookmarked = NagramX::IsBookmarked(peerId, msgId);
+
+	menu->addAction(
+		bookmarked ? tr::lng_nagramx_bookmark_remove(tr::now) : tr::lng_nagramx_bookmark_add(tr::now),
+		[=]
+		{
+			if (bookmarked) {
+				NagramX::RemoveBookmark(peerId, msgId);
+			} else {
+				NagramX::AddBookmark(item);
+			}
+		},
+		&st::menuIconFave);
 }
 
 } // namespace AyuUi

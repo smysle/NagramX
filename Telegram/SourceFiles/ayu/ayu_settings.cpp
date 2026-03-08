@@ -337,6 +337,28 @@ AyuGramSettings::AyuGramSettings() {
 	adaptiveCoverColor = true;
 
 	crashReporting = true;
+
+	// NagramX defaults
+	nagramxLlmProviderPreset = 0;
+	nagramxLlmProvider = "";
+	nagramxLlmApiUrl = "";
+	nagramxLlmModel = "";
+	nagramxLlmApiKey = "";
+	nagramxLlmSystemPrompt = "";
+	nagramxTranslateWithLlm = false;
+	nagramxTranslationProvider = 0;
+	nagramxDeepLApiKey = "";
+	nagramxMicrosoftTranslateKey = "";
+	nagramxLingoApiToken = "";
+	nagramxShowBookmarkAction = true;
+	nagramxShowMessageDetails = true;
+	nagramxCustomTitle = "";
+	nagramxConfirmExternalLinks = false;
+	nagramxHideStories = false;
+	nagramxAlwaysShowDownloadIcon = false;
+	nagramxNoQuoteForward = false;
+	nagramxRepeatAsCopy = false;
+	nagramxSendHighQualityPhoto = false;
 }
 
 void set_sendReadMessages(bool val) {
@@ -688,6 +710,86 @@ void set_adaptiveCoverColor(bool val) {
 
 void set_crashReporting(bool val) {
 	settings->crashReporting = val;
+}
+
+void set_nagramxLlmProviderPreset(int val) {
+	settings->nagramxLlmProviderPreset = val;
+}
+
+void set_nagramxLlmProvider(const QString &val) {
+	settings->nagramxLlmProvider = val;
+}
+
+void set_nagramxLlmApiUrl(const QString &val) {
+	settings->nagramxLlmApiUrl = val;
+}
+
+void set_nagramxLlmModel(const QString &val) {
+	settings->nagramxLlmModel = val;
+}
+
+void set_nagramxLlmApiKey(const QString &val) {
+	settings->nagramxLlmApiKey = val;
+}
+
+void set_nagramxLlmSystemPrompt(const QString &val) {
+	settings->nagramxLlmSystemPrompt = val;
+}
+
+void set_nagramxTranslateWithLlm(bool val) {
+	settings->nagramxTranslateWithLlm = val;
+}
+
+void set_nagramxTranslationProvider(int val) {
+	settings->nagramxTranslationProvider = val;
+}
+
+void set_nagramxDeepLApiKey(const QString &val) {
+	settings->nagramxDeepLApiKey = val;
+}
+
+void set_nagramxMicrosoftTranslateKey(const QString &val) {
+	settings->nagramxMicrosoftTranslateKey = val;
+}
+
+void set_nagramxLingoApiToken(const QString &val) {
+	settings->nagramxLingoApiToken = val;
+}
+
+void set_nagramxShowBookmarkAction(bool val) {
+	settings->nagramxShowBookmarkAction = val;
+}
+
+void set_nagramxShowMessageDetails(bool val) {
+	settings->nagramxShowMessageDetails = val;
+}
+
+void set_nagramxCustomTitle(const QString &val) {
+	settings->nagramxCustomTitle = val;
+}
+
+void set_nagramxConfirmExternalLinks(bool val) {
+	settings->nagramxConfirmExternalLinks = val;
+}
+
+void set_nagramxHideStories(bool val) {
+	settings->nagramxHideStories = val;
+}
+
+void set_nagramxAlwaysShowDownloadIcon(bool val) {
+	settings->nagramxAlwaysShowDownloadIcon = val;
+}
+
+void set_nagramxNoQuoteForward(bool val) {
+	settings->nagramxNoQuoteForward = val;
+}
+
+void set_nagramxRepeatAsCopy(bool val) {
+	settings->nagramxRepeatAsCopy = val;
+}
+
+void set_nagramxSendHighQualityPhoto(bool val) {
+	settings->nagramxSendHighQualityPhoto = val;
 }
 
 bool isUseScheduledMessages() {

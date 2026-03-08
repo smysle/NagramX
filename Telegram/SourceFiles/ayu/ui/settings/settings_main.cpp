@@ -16,6 +16,7 @@
 #include "settings_chats.h"
 #include "settings_filters.h"
 #include "settings_general.h"
+#include "settings_nagramx.h"
 #include "settings_other.h"
 
 #include "ayu/ayu_settings.h"
@@ -93,6 +94,7 @@ void SetupCategories(
 		{tr::ayu_CategoryAppearance(tr::now), &st::menuIconPalette, [=] { showOther(AyuAppearance::Id()); }},
 		{tr::ayu_CategoryChats(tr::now), &st::menuIconChatBubble, [=] { showOther(AyuChats::Id()); }},
 		{tr::ayu_CategoryOther(tr::now), &st::menuIconFave, [=] { showOther(AyuOther::Id()); }},
+		{QString("NagramX"), &st::menuIconManage, [=] { showOther(NagramXSettings::Id()); }},
 	};
 
 	for (const auto &category : categories) {

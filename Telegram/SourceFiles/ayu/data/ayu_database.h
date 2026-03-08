@@ -56,4 +56,10 @@ bool hasPerDialogFilters();
 
 void moveCurrentDatabase();
 
+// NagramX Bookmarks
+void addBookmark(const NagramxBookmark &bookmark);
+void removeBookmark(ID peerId, int messageId);
+bool isBookmarked(ID peerId, int messageId);
+std::vector<NagramxBookmark> getBookmarks();
+
 }

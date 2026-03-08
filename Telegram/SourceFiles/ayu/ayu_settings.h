@@ -149,6 +149,34 @@ public:
 	bool adaptiveCoverColor;
 
 	bool crashReporting;
+
+	// NagramX LLM
+	int nagramxLlmProviderPreset;
+	QString nagramxLlmProvider;
+	QString nagramxLlmApiUrl;
+	QString nagramxLlmModel;
+	QString nagramxLlmApiKey;
+	QString nagramxLlmSystemPrompt;
+	bool nagramxTranslateWithLlm;
+
+	// NagramX Translation
+	int nagramxTranslationProvider;
+	QString nagramxDeepLApiKey;
+	QString nagramxMicrosoftTranslateKey;
+	QString nagramxLingoApiToken;
+
+	// NagramX Bookmarks/UI
+	bool nagramxShowBookmarkAction;
+	bool nagramxShowMessageDetails;
+	QString nagramxCustomTitle;
+
+	// NagramX Live Features
+	bool nagramxConfirmExternalLinks;
+	bool nagramxHideStories;
+	bool nagramxAlwaysShowDownloadIcon;
+	bool nagramxNoQuoteForward;
+	bool nagramxRepeatAsCopy;
+	bool nagramxSendHighQualityPhoto;
 };
 
 void set_sendReadMessages(bool val);
@@ -257,6 +285,28 @@ void set_adaptiveCoverColor(bool val);
 
 void set_crashReporting(bool val);
 
+// NagramX setters
+void set_nagramxLlmProviderPreset(int val);
+void set_nagramxLlmProvider(const QString &val);
+void set_nagramxLlmApiUrl(const QString &val);
+void set_nagramxLlmModel(const QString &val);
+void set_nagramxLlmApiKey(const QString &val);
+void set_nagramxLlmSystemPrompt(const QString &val);
+void set_nagramxTranslateWithLlm(bool val);
+void set_nagramxTranslationProvider(int val);
+void set_nagramxDeepLApiKey(const QString &val);
+void set_nagramxMicrosoftTranslateKey(const QString &val);
+void set_nagramxLingoApiToken(const QString &val);
+void set_nagramxShowBookmarkAction(bool val);
+void set_nagramxShowMessageDetails(bool val);
+void set_nagramxCustomTitle(const QString &val);
+void set_nagramxConfirmExternalLinks(bool val);
+void set_nagramxHideStories(bool val);
+void set_nagramxAlwaysShowDownloadIcon(bool val);
+void set_nagramxNoQuoteForward(bool val);
+void set_nagramxRepeatAsCopy(bool val);
+void set_nagramxSendHighQualityPhoto(bool val);
+
 inline void to_json(nlohmann::json &nlohmann_json_j, const AyuGramSettings &nlohmann_json_t) {
 	NLOHMANN_JSON_TO(sendReadMessages)
 	NLOHMANN_JSON_TO(sendReadStories)
@@ -339,6 +389,26 @@ inline void to_json(nlohmann::json &nlohmann_json_j, const AyuGramSettings &nloh
 	NLOHMANN_JSON_TO(translationProvider)
 	NLOHMANN_JSON_TO(adaptiveCoverColor)
 	NLOHMANN_JSON_TO(crashReporting)
+	NLOHMANN_JSON_TO(nagramxLlmProviderPreset)
+	NLOHMANN_JSON_TO(nagramxLlmProvider)
+	NLOHMANN_JSON_TO(nagramxLlmApiUrl)
+	NLOHMANN_JSON_TO(nagramxLlmModel)
+	NLOHMANN_JSON_TO(nagramxLlmApiKey)
+	NLOHMANN_JSON_TO(nagramxLlmSystemPrompt)
+	NLOHMANN_JSON_TO(nagramxTranslateWithLlm)
+	NLOHMANN_JSON_TO(nagramxTranslationProvider)
+	NLOHMANN_JSON_TO(nagramxDeepLApiKey)
+	NLOHMANN_JSON_TO(nagramxMicrosoftTranslateKey)
+	NLOHMANN_JSON_TO(nagramxLingoApiToken)
+	NLOHMANN_JSON_TO(nagramxShowBookmarkAction)
+	NLOHMANN_JSON_TO(nagramxShowMessageDetails)
+	NLOHMANN_JSON_TO(nagramxCustomTitle)
+	NLOHMANN_JSON_TO(nagramxConfirmExternalLinks)
+	NLOHMANN_JSON_TO(nagramxHideStories)
+	NLOHMANN_JSON_TO(nagramxAlwaysShowDownloadIcon)
+	NLOHMANN_JSON_TO(nagramxNoQuoteForward)
+	NLOHMANN_JSON_TO(nagramxRepeatAsCopy)
+	NLOHMANN_JSON_TO(nagramxSendHighQualityPhoto)
 }
 
 inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nlohmann_json_t) {
@@ -424,6 +494,26 @@ inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nl
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(translationProvider)
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(adaptiveCoverColor)
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(crashReporting)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxLlmProviderPreset)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxLlmProvider)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxLlmApiUrl)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxLlmModel)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxLlmApiKey)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxLlmSystemPrompt)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxTranslateWithLlm)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxTranslationProvider)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxDeepLApiKey)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxMicrosoftTranslateKey)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxLingoApiToken)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxShowBookmarkAction)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxShowMessageDetails)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxCustomTitle)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxConfirmExternalLinks)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxHideStories)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxAlwaysShowDownloadIcon)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxNoQuoteForward)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxRepeatAsCopy)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(nagramxSendHighQualityPhoto)
 }
 
 AyuGramSettings &getInstance();

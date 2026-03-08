@@ -157,6 +157,8 @@ set(ayugram_files
         ayu/ui/settings/settings_main.h
         ayu/ui/settings/settings_other.cpp
         ayu/ui/settings/settings_other.h
+        ayu/ui/settings/settings_nagramx.cpp
+        ayu/ui/settings/settings_nagramx.h
         ayu/ui/settings/filters/settings_filters_list.cpp
         ayu/ui/settings/filters/settings_filters_list.h
         ayu/ui/settings/filters/per_dialog_filter.cpp
@@ -240,6 +242,28 @@ set(ayugram_files
 
         info/profile/info_profile_music_button.cpp
         info/profile/info_profile_music_button.h
+
+        nagramx/nagramx_brand.h
+        nagramx/llm/nagramx_llm_client.cpp
+        nagramx/llm/nagramx_llm_client.h
+        nagramx/llm/nagramx_llm_provider_presets.cpp
+        nagramx/llm/nagramx_llm_provider_presets.h
+        nagramx/translate/nagramx_translate_deepl.cpp
+        nagramx/translate/nagramx_translate_deepl.h
+        nagramx/translate/nagramx_translate_microsoft.cpp
+        nagramx/translate/nagramx_translate_microsoft.h
+        nagramx/translate/nagramx_translate_lingo.cpp
+        nagramx/translate/nagramx_translate_lingo.h
+        nagramx/translate/nagramx_translate_transmart.cpp
+        nagramx/translate/nagramx_translate_transmart.h
+        nagramx/translate/nagramx_translate_llm.cpp
+        nagramx/translate/nagramx_translate_llm.h
+        nagramx/bookmarks/nagramx_bookmarks.cpp
+        nagramx/bookmarks/nagramx_bookmarks.h
+        nagramx/bookmarks/nagramx_bookmarks_box.cpp
+        nagramx/bookmarks/nagramx_bookmarks_box.h
+        nagramx/messages/nagramx_message_details_box.cpp
+        nagramx/messages/nagramx_message_details_box.h
 )
 
 target_precompile_headers(Telegram PRIVATE $<$<COMPILE_LANGUAGE:CXX,OBJCXX>:${src_loc}/stdafx.h>)
